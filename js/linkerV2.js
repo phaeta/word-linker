@@ -4,13 +4,15 @@
 
     // Build map of words that we DO want to link
 
-    var keywordsList = ["Lorem", "ipsum", "consectetur", "adipiscing", "vehicula", "quam"];
+    var keywordsList = ["prostate", "thyroid", "adipiscing", "vehicula", "quam"];
 
     var keywords = {};
 
     for (var i = 0, len = keywordsList.length; i < len; i++) {
         keywords[keywordsList[i].trim()] = true;
     }
+
+    var baseURL = "https://human.biodigital.com";
 
     /**
      * Within all text within a given DOM element, creates a link for each word that
@@ -131,11 +133,16 @@
         findAndReplaceDOMText(container, { // Defined in lib/jquery/plugins/jquery.ba-replacetext.min.js
             find: regex,
             replace: function (portion, match) {
-                var el = document.createElement('a');
-                el.href = result.embed_url;
-                el.style.backgroundColor = "green";
-                el.innerHTML = portion.text;
-                return el;
+
+                var span = document.createElement('span');
+                span.innerHTML = portion.text;
+
+                var img = document.createElement('img');
+                img.src = baseURL + result.thumbnail_url;
+
+                span.appendChild(img);
+
+                return span;
             },
             forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
         });
