@@ -4,7 +4,74 @@
 
     // Build map of words that we DO want to link
 
-    var keywordsList = ["prostate", "thyroid", "adipiscing", "vehicula", "quam"];
+    var keywordsList = [
+        'eye',
+        'male',
+        'foot',
+        'lung',
+        'cell',
+        'knee',
+        'pain',
+        'bone',
+        'lungs',
+        'valve',
+        'acute',
+        'small',
+        'heart',
+        'stage',
+        'cross',
+        'brain',
+        'liver',
+        'blood',
+        'nerve',
+        'throat',
+        'female',
+        'breast',
+        'detail',
+        'artery',
+        'cancer',
+        'kidney',
+        'spinal',
+        'tissue',
+        'system',
+        'surgery',
+        'disease',
+        'colonic',
+        'stomach',
+        'anatomy',
+        'chronic',
+        'insulin',
+        'beating',
+        'section',
+        'thyroid',
+        'failure',
+        'colitis',
+        'diabetes',
+        'syndrome',
+        'skeletal',
+        'injuries',
+        'diabetic',
+        'muscular',
+        'diseases',
+        'prostate',
+        'leukemia',
+        'pulmonary',
+        'disorders',
+        'esophagus',
+        'hepatitis',
+        'arthritis',
+        'breathing',
+        'bronchitis',
+        'infections',
+        'esophageal',
+        'peripheral',
+        'gallbladder',
+        'reproductive',
+        'aspergilloma',
+        'osteomyelitis',
+        'transplantation'
+    ];
+
 
     var keywords = {};
 
@@ -97,15 +164,15 @@
         var word = item.word;
         var count = item.count;
 
-        // TODO: Add ALAX query to server here
+        $.getJSON(baseURL + "/search/conditions?q=" + word,
+            function (results) {
 
-        // For now we'll fake the server response...
-
-        callback({
-            word: word,
-            count: count,
-            results: testResponse.results
-        });
+                callback({
+                    word: word,
+                    count: count,
+                    results: results
+                });
+            });
     }
 
     function createLink(container, link) {
