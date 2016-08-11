@@ -2,28 +2,84 @@
 
     "use strict";
 
-    // Build map of words that we don't want to link
+    // Build map of words that we DO want to link
 
-    var stopWordsList = ["a", "able", "about", "across", "after", "all", "almost", "also", "am", "among", "an", "and",
-        "any", "are", "as", "at", "be", "because", "been", "but", "by", "can", "cannot", "could", "dear", "did", "do",
-        "does", "either", "else", "ever", "every", "for", "from", "get", "got", "had", "has", "have", "he", "her", "hers",
-        "him", "his", "how", "however", "i", "if", "in", "into", "is", "it", "its", "just", "least", "let", "like", "likely",
-        "may", "me", "might", "most", "must", "my", "neither", "no", "nor", "not", "of", "off", "often", "on", "only", "or",
-        "other", "our", "own", "rather", "said", "say", "says", "she", "should", "since", "so", "some", "than", "that",
-        "the", "their", "them", "then", "there", "these", "they", "this", "tis", "to", "too", "twas", "us", "wants",
-        "was", "we", "were", "what", "when", "where", "which", "while", "who", "whom", "why", "will", "with", "would",
-        "yet", "you", "your", "ain't", "aren't", "can't", "could've", "couldn't", "didn't", "doesn't", "don't",
-        "hasn't", "he'd", "he'll", "he's", "how'd", "how'll", "how's", "i'd", "i'll", "i'm", "i've", "isn't", "it's",
-        "might've", "mightn't", "must've", "mustn't", "shan't", "she'd", "she'll", "she's", "should've", "shouldn't",
-        "that'll", "that's", "there's", "they'd", "they'll", "they're", "they've", "wasn't", "we'd", "we'll", "we're",
-        "weren't", "what'd", "what's", "when'd", "when'll", "when's", "where'd", "where'll", "where's", "who'd", "who'll",
-        "who's", "why'd", "why'll", "why's", "won't", "would've", "wouldn't", "you'd", "you'll", "you're", "you've"];
+    var keywordsList = [
+        'eye',
+        'male',
+        'foot',
+        'lung',
+        'cell',
+        'knee',
+        'pain',
+        'bone',
+        'lungs',
+        'valve',
+        'acute',
+        'small',
+        'heart',
+        'stage',
+        'cross',
+        'brain',
+        'liver',
+        'blood',
+        'nerve',
+        'throat',
+        'female',
+        'breast',
+        'detail',
+        'artery',
+        'cancer',
+        'kidney',
+        'spinal',
+        'tissue',
+        'system',
+        'surgery',
+        'disease',
+        'colonic',
+        'stomach',
+        'anatomy',
+        'chronic',
+        'insulin',
+        'beating',
+        'section',
+        'thyroid',
+        'failure',
+        'colitis',
+        'diabetes',
+        'syndrome',
+        'skeletal',
+        'injuries',
+        'diabetic',
+        'muscular',
+        'diseases',
+        'prostate',
+        'leukemia',
+        'pulmonary',
+        'disorders',
+        'esophagus',
+        'hepatitis',
+        'arthritis',
+        'breathing',
+        'bronchitis',
+        'infections',
+        'esophageal',
+        'peripheral',
+        'gallbladder',
+        'reproductive',
+        'aspergilloma',
+        'osteomyelitis',
+        'transplantation'
+    ];
 
-    var stopWordsMap = {};
 
-    for (var i = 0, len = stopWordsList.length; i < len; i++) {
-        stopWordsMap[stopWordsList[i].trim()] = true;
+    var keywords = {};
+
+    for (var i = 0, len = keywordsList.length; i < len; i++) {
+        keywords[keywordsList[i].trim()] = true;
     }
+
+    var baseURL = "https://human.biodigital.com";
 
     /**
      * Within all text within a given DOM element, creates a link for each word that
@@ -31,29 +87,39 @@
      */
     window.linker = new (function () {
 
+        this.baseURL = baseURL;
+
         /**
          * Create links for recognized words within a DOM element.
          *
          * @param container The DOM element.
-         * @param baseURL Base URL for each link.
-         * @param ok Completion callback.
+         * @param done Callback fired when all links created.
          * @returns {*}
          */
-        this.createLinks = function (container, baseURL, ok) {
+        this.createLinks = function (container, done) {
+            this.getLinks(container,
+                function (link) {
+                    createLink(container, link);
+                },
+                done);
+        };
+
+        /**
+         * Create links for recognized words within a DOM element.
+         *
+         * @param container The DOM element.
+         * @param callback Callback fired for each link found
+         * @param done Callback fired when all links found
+         */
+        this.getLinks = function (container, callback, done) {
 
             var words = findWords(container);
 
             if (words.length === 0) {
-                ok();
-                return;
+                return false;
             }
 
-            getLinks(words, function (links) {
-                linkWords(container, baseURL, links);
-                ok();
-            });
-
-            return this;
+            queryWords(words, callback, done);
         };
     })();
 
@@ -66,72 +132,75 @@
                 return this.nodeValue.trim().split(/\W+/);  //split the nodevalue to get words.
         }).get(); //get the array of words.
 
-        // Filter out duplicates and "stop words"
+        // Find recognized keywords and their usage counts
 
         var word;
         var map = {};
+        var item;
         var words = [];
 
         for (var i = 0, len = wordsList.length; i < len; i++) {
             word = wordsList[i];
-            if (!map[word] && !stopWordsMap[word]) {
-                map[word] = word;
-                words.push(word);
+            if (keywords[word]) {
+                item = map[word];
+                if (item) {
+                    item.count++;
+                } else {
+                    item = {word: word, count: 1};
+                    map[word] = item;
+                    words.push(item);
+                }
             }
         }
 
         return words;
     }
 
-    function getLinks(words, ok) { // Queries server for links corresponding to keywords
-
-        console.log("Querying content for " + words.length + " words");
-
-        var word;
-        var link;
-        var links = [];
-
+    function queryWords(words, callback, done) {
+        var queries = words.length;
         for (var i = 0, len = words.length; i < len; i++) {
-
-            word = words[i];
-
-            if (Math.random() < 0.5) {
-                continue;
-            }
-
-            link = {
-                word: word
-            };
-
-            if (Math.random() < 0.5) {
-                link.moduleId = word;
-            } else {
-                link.objectId = word;
-            }
-
-            links.push(link);
-        }
-
-        ok(links);
-    }
-
-    function linkWords(container, baseURL, links) { // Inserts links into the page
-
-        console.log("Creating links for " + links.length + " words");
-
-        for (var i = 0, len = links.length; i < len; i++) {
-            linkWord(container, baseURL, links[i]);
+            queryWord(words[i], function (item) {
+                callback(item);
+                if (--queries >= 0) {
+                    done();
+                }
+            });
         }
     }
 
-    function linkWord(container, baseURL, link) { // Inserts a link into the page
+    function queryWord(item, callback) {
 
-        if (link.word === "") {
+        var word = item.word;
+        var count = item.count;
+
+        $.getJSON(baseURL + "/search/conditions?q=" + word,
+            function (data) {
+
+                callback({
+                    word: word,
+                    count: count,
+                    results: data.results
+                });
+            });
+    }
+
+    function createLink(container, link) {
+
+        var word = link.word;
+        var results = link.results;
+
+        if (word === "") {
             return;
         }
 
+        if (results.length === 0) {
+            return;
+        }
+
+        var result = results[0];
+
         try {
-            var regex = RegExp(link.word, 'gi');
+            var regex = RegExp(word, 'gi');
         } catch (e) {
             console.error("Invalid regex: " + e);
             return;
@@ -140,16 +209,16 @@
         findAndReplaceDOMText(container, { // Defined in lib/jquery/plugins/jquery.ba-replacetext.min.js
             find: regex,
             replace: function (portion, match) {
-                var el = document.createElement('a');
-                if (link.moduleId) {
-                    el.href = baseURL + "?moduleId=" + link.moduleId;
-                    el.style.backgroundColor = "red";
-                } else if (link.objectId) {
-                    el.href = baseURL + "?objectId=" + link.objectId;
-                    el.style.backgroundColor = "green";
-                }
-                el.innerHTML = portion.text;
-                return el;
+
+                var span = document.createElement('span');
+                span.innerHTML = portion.text;
+
+                var img = document.createElement('img');
+                img.src = baseURL + result.thumbnail_url;
+
+                span.appendChild(img);
+
+                return span;
             },
             forceContext: findAndReplaceDOMText.NON_INLINE_PROSE
         });

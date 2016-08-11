@@ -5,6 +5,7 @@
     <title></title>
     <script src="lib/jquery.min.js"></script>
     <script defer src="lib/findAndReplaceDOMText.js"></script>
+
     <script defer src="js/linker.js"></script>
 
 </head>
@@ -17,11 +18,13 @@
 
 <script>
 
+    // Inserting images next to keywords, relying on the linker to insert the DOM elements.
+
     $(document).ready(function () {
 
         var container = document.getElementById("container");
 
-        linker.createLinks(container, "http://foo.com", function () {
+        linker.createLinks(container, function () {
             console.log("Finito!");
         });
     });
