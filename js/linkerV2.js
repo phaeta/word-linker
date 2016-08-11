@@ -92,14 +92,15 @@
          * Create links for recognized words within a DOM element.
          *
          * @param container The DOM element.
+         * @param done Callback fired when all links created.
          * @returns {*}
          */
-        this.createLinks = function (container) {
-
+        this.createLinks = function (container, done) {
             this.getLinks(container,
                 function (link) {
                     createLink(container, link);
-                });
+                },
+                done);
         };
 
         /**
@@ -107,8 +108,9 @@
          *
          * @param container The DOM element.
          * @param callback Callback fired for each link found
+         * @param done Callback fired when all links found
          */
-        this.getLinks = function (container, callback) {
+        this.getLinks = function (container, callback, done) {
 
             var words = findWords(container);
 
@@ -116,7 +118,7 @@
                 return false;
             }
 
-            queryWords(words, callback);
+            queryWords(words, callback, done);
         };
     })();
 
@@ -153,9 +155,15 @@
         return words;
     }
 
-    function queryWords(words, callback) {
+    function queryWords(words, callback, done) {
+        var queries = words.length;
         for (var i = 0, len = words.length; i < len; i++) {
-            queryWord(words[i], callback);
+            queryWord(words[i], function (item) {
+                callback(item);
+                if (--queries >= 0) {
+                    done();
+                }
+            });
         }
     }
 
