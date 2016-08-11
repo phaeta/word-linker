@@ -165,12 +165,12 @@
         var count = item.count;
 
         $.getJSON(baseURL + "/search/conditions?q=" + word,
-            function (results) {
+            function (data) {
 
                 callback({
                     word: word,
                     count: count,
-                    results: results
+                    results: data.results
                 });
             });
     }
