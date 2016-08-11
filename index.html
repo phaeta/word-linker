@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="lib/jquery.min.js"></script>
+    <script defer src="lib/findAndReplaceDOMText.js"></script>
+    <script defer src="js/linker.js"></script>
+
+</head>
+<body>
+<div id="container">
+    <h3>This text is all randomly sized so you can have a go at matching "across element bounderies"!</h3>
+
+    <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas imperdiet consequat orci, at euismod sapien
+        vestibulum nec. Cras pellentesque magna nec lorem tempus accumsan. Maecenas lobortis velit a turpis imperdiet
+        ullamcorper. Cras auctor tellus eu magna tincidunt porttitor. Morbi felis justo, blandit eget vehicula sit amet,
+        volutpat id augue. Cras cursus congue ultrices. Fusce a neque nunc, at accumsan metus. Integer ut ante purus.
+        Vestibulum vel leo libero. Pellentesque a quam urna. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+    </p>
+
+    <p>
+        Some test numbers for you to match!
+    </p>
+    <ul>
+        <li>01920199999</li>
+        <li>02998366</li>
+        <li>0123333333</li>
+        <li>0000</li>
+        <li>1212121212</li>
+        <li>999888999</li>
+        <li>1234567890</li>
+    </ul>
+    <p>
+        Phasellus ultricies varius lacus, blandit tincidunt velit aliquet in. Nam quis odio ac sapien elementum luctus
+        et a nunc. Ut eget nulla enim. Pellentesque semper, nulla eu venenatis placerat, tellus diam condimentum arcu,
+        nec consectetur nunc est vitae tellus. Nulla vehicula est ac odio elementum egestas. Quisque vestibulum aliquam
+        pulvinar. Mauris varius elit eu neque ornare dictum.
+    </p>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        var container = document.getElementById("container");
+
+        linker.createLinks(container, "http://foo.com", function () {
+            console.log("Finito!");
+        });
+    });
+
+</script>
+</body>
+</html>
