@@ -35,3 +35,17 @@
   height: 600px;
   width: 100%;
 }
+
+.fl_left {
+  float: left;
+  padding: 25px;
+}
+
+.fl_right {
+  float: right;
+  padding: 25px;
+}
+
+.highlight {
+  color: red;
+}
